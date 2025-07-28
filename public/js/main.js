@@ -36,34 +36,6 @@ class MNISTApp {
     this.canvas.addEventListener('mouseout', () => {
       this.isDrawing = false;
     });
-
-    // Touch events for mobile
-    this.canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      this.isDrawing = true;
-      const touch = e.touches[0];
-      const mouseEvent = new MouseEvent('mousedown', {
-        clientX: touch.clientX,
-        clientY: touch.clientY
-      });
-      this.draw(mouseEvent);
-    });
-
-    this.canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      if (this.isDrawing) {
-        const touch = e.touches[0];
-        const mouseEvent = new MouseEvent('mousemove', {
-          clientX: touch.clientX,
-          clientY: touch.clientY
-        });
-        this.draw(mouseEvent);
-      }
-    });
-
-    this.canvas.addEventListener('touchend', () => {
-      this.isDrawing = false;
-    });
   }
 
   // Dessine un point blanc sur le canvas

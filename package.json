@@ -1,0 +1,30 @@
+{
+  "name": "mnist-web-ia",
+  "version": "1.0.0",
+  "description": "Reconnaissance de chiffres manuscrits avec IA et interface web",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve public -p 8000",
+    "build": "echo 'Building project...'",
+    "train": "cd scripts && python train_mnist.py",
+    "serve": "npx serve public"
+  },
+  "keywords": [
+    "mnist",
+    "machine-learning",
+    "pytorch",
+    "onnx",
+    "web",
+    "typescript",
+    "ai"
+  ],
+  "author": "Corentin Deleuse",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.1",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+} 

@@ -1,4 +1,5 @@
 class MNISTApp {
+  // Initialise l'application MNIST
   constructor() {
     this.canvas = document.getElementById('canvas');
     this.canvas.width = 280;
@@ -14,6 +15,7 @@ class MNISTApp {
     this.loadModel();
   }
 
+  // Configure les événements de dessin sur le canvas (souris et tactile)
   setupCanvas() {
     // Mouse events for desktop
     this.canvas.addEventListener('mousedown', (e) => {
@@ -64,6 +66,7 @@ class MNISTApp {
     });
   }
 
+  // Dessine un point blanc sur le canvas
   draw(e) {
     const rect = this.canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -76,6 +79,7 @@ class MNISTApp {
     this.ctx.fill();
   }
 
+  // Configure les boutons "Effacer" et "Prédire"
   setupButtons() {
     document.getElementById('clear').addEventListener('click', () => {
       this.ctx.fillStyle = 'black';
@@ -89,6 +93,7 @@ class MNISTApp {
     });
   }
 
+  // Charge le modèle ONNX depuis le fichier
   async loadModel() {
     try {
       this.model = await ort.InferenceSession.create('/models/mnist.onnx');
@@ -99,6 +104,7 @@ class MNISTApp {
     }
   }
 
+  // Prépare l'image du canvas pour la prédiction (redimensionne et normalise)
   preprocessCanvas() {
     const imageData = this.ctx.getImageData(0, 0, 280, 280);
     const resized = this.resizeImageData(imageData, 28, 28);
@@ -113,6 +119,7 @@ class MNISTApp {
     return input;
   }
 
+  // Redimensionne les données d'image à la taille spécifiée
   resizeImageData(imageData, width, height) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -129,6 +136,7 @@ class MNISTApp {
     return ctx.getImageData(0, 0, width, height);
   }
 
+  // Effectue une prédiction sur le dessin et affiche le résultat
   async predict() {
     if (!this.model) return;
 
@@ -148,6 +156,7 @@ class MNISTApp {
     }
   }
 
+  // Affiche les barres de confiance pour chaque chiffre (0-9)
   displayConfidence(output) {
     const softmax = this.softmax(Array.from(output));
     const barsContainer = document.getElementById('bars');
@@ -167,6 +176,7 @@ class MNISTApp {
     });
   }
 
+  // Calcule la fonction softmax pour convertir les scores en probabilités
   softmax(arr) {
     const max = Math.max(...arr);
     const exp = arr.map(x => Math.exp(x - max));

@@ -8,6 +8,8 @@ class MNISTApp {
     this.ctx.fillStyle = 'black';
     this.ctx.fillRect(0, 0, 280, 280);
     this.isDrawing = false;
+    this.lastX = 0;
+    this.lastY = 0;
     this.model = null;
     
     this.setupCanvas();
@@ -20,7 +22,9 @@ class MNISTApp {
     // Mouse events for desktop
     this.canvas.addEventListener('mousedown', (e) => {
       this.isDrawing = true;
-      this.draw(e);
+      const rect = this.canvas.getBoundingClientRect();
+      this.lastX = e.clientX - rect.left;
+      this.lastY = e.clientY - rect.top;
     });
 
     this.canvas.addEventListener('mousemove', (e) => {
@@ -38,17 +42,25 @@ class MNISTApp {
     });
   }
 
-  // Dessine un point blanc sur le canvas
+  // Dessine une ligne continue sur le canvas
   draw(e) {
     const rect = this.canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
     this.ctx.globalCompositeOperation = 'source-over';
-    this.ctx.fillStyle = 'white';
+    this.ctx.strokeStyle = 'white';
+    this.ctx.lineWidth = 20;
+    this.ctx.lineCap = 'round';
+    this.ctx.lineJoin = 'round';
+    
     this.ctx.beginPath();
-    this.ctx.arc(x, y, 10, 0, 2 * Math.PI);
-    this.ctx.fill();
+    this.ctx.moveTo(this.lastX, this.lastY);
+    this.ctx.lineTo(x, y);
+    this.ctx.stroke();
+    
+    this.lastX = x;
+    this.lastY = y;
   }
 
   // Configure les boutons "Effacer" et "Prédire"

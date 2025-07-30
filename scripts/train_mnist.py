@@ -10,24 +10,47 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super().__init__()
+        # Couches de convolution
+        self.conv_layers = nn.Sequential(
+            # Première couche de convolution
+            nn.Conv2d(1, 32, kernel_size=3, padding=1),  # 28x28 -> 28x28
+            nn.ReLU(),
+            nn.Conv2d(32, 32, kernel_size=3, padding=1),  # 28x28 -> 28x28
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),  # 28x28 -> 14x14
+            nn.Dropout(0.25),
+            
+            # Deuxième couche de convolution
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),  # 14x14 -> 14x14
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, padding=1),  # 14x14 -> 14x14
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),  # 14x14 -> 7x7
+            nn.Dropout(0.25),
+            
+            # Troisième couche de convolution
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),  # 7x7 -> 7x7
+            nn.ReLU(),
+            nn.Dropout(0.25),
+        )
+        
+        # Couches fully connected
         self.flatten = nn.Flatten()
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(28*28, 512),
+        self.fc_layers = nn.Sequential(
+            nn.Linear(128 * 7 * 7, 512),  # 7x7x128 = 6272
             nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(512, 512),
-            nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(512, 256),
             nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(256, 10),
+            nn.Dropout(0.5),
+            nn.Linear(256, 10),  # 10 classes pour MNIST
         )
 
     def forward(self, x):
+        x = self.conv_layers(x)
         x = self.flatten(x)
-        logits = self.linear_relu_stack(x)
-        return logits   
+        x = self.fc_layers(x)
+        return x
 
 def get_data():
     train_transform = transforms.Compose([
@@ -43,14 +66,14 @@ def get_data():
     ])
     
     train_dataset = datasets.MNIST('data', train=True, download=True, transform=train_transform)
-    test_dataset = datasets.MNIST('data', train=False, transform=test_transform)
+    test_dataset = datasets.MNIST('data', train=False, download=True, transform=test_transform)
     
     train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=128, shuffle=False)
     
     return train_loader, test_loader
 
-def train_model(model, train_loader, test_loader, epochs=15): 
+def train_model(model, train_loader, test_loader, epochs=5): 
     model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
@@ -65,11 +88,11 @@ def train_model(model, train_loader, test_loader, epochs=15):
         for data, target in train_loader:
             data, target = data.to(device), target.to(device)
             
-            optimizer.zero_grad()
             output = model(data)
             loss = criterion(output, target)
             loss.backward()
             optimizer.step()
+            optimizer.zero_grad()
             
             total_loss += loss.item()
         
@@ -120,7 +143,7 @@ if __name__ == "__main__":
     print("Données MNIST chargées")
 
     # Entraînement du modèle
-    train_model(model, train_loader, test_loader, epochs=15)
+    train_model(model, train_loader, test_loader, epochs=5)
 
     # Chargement du modèle
     model.load_state_dict(torch.load('../models/mnist.pth'))

@@ -18,7 +18,7 @@ class NeuralNetwork(nn.Module):
             nn.Conv2d(32, 32, kernel_size=3, padding=1),  # 28x28 -> 28x28
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),  # 28x28 -> 14x14
-            nn.Dropout(0.25),
+            nn.Dropout(0.2),
             
             # Deuxième couche de convolution
             nn.Conv2d(32, 64, kernel_size=3, padding=1),  # 14x14 -> 14x14
@@ -26,12 +26,12 @@ class NeuralNetwork(nn.Module):
             nn.Conv2d(64, 64, kernel_size=3, padding=1),  # 14x14 -> 14x14
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),  # 14x14 -> 7x7
-            nn.Dropout(0.25),
+            nn.Dropout(0.2),
             
             # Troisième couche de convolution
             nn.Conv2d(64, 128, kernel_size=3, padding=1),  # 7x7 -> 7x7
-            nn.ReLU(),
-            nn.Dropout(0.25),
+            nn.ReLU(), #Activation
+            nn.Dropout(0.2),
         )
         
         # Couches fully connected
@@ -39,10 +39,10 @@ class NeuralNetwork(nn.Module):
         self.fc_layers = nn.Sequential(
             nn.Linear(128 * 7 * 7, 512),  # 7x7x128 = 6272
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2), #Eteint des neurones
             nn.Linear(512, 256),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(256, 10),  # 10 classes pour MNIST
         )
 
@@ -90,6 +90,8 @@ def train_model(model, train_loader, test_loader, epochs=5):
             
             output = model(data)
             loss = criterion(output, target)
+
+            #Update wheights
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
@@ -100,7 +102,7 @@ def train_model(model, train_loader, test_loader, epochs=5):
         correct = 0
         total = 0
         
-        with torch.no_grad():
+        with torch.no_grad():  #Non entrainement
             for data, target in test_loader:
                 data, target = data.to(device), target.to(device)
                 output = model(data)
